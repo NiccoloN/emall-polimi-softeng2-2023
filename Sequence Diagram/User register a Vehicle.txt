@@ -1,0 +1,16 @@
+title End User connects a Vehicle
+
+participant End User
+participant eMSS
+
+
+End User->eMSS:get(myVehiclesPage)
+activate eMSS
+End User<--eMSS:show(myVehiclesPage)
+deactivate eMSS
+
+End User->eMSS:addVehicle(vehicle)
+activate eMSS
+eMSS->eMSS:save(vehicle)
+eMSS-->End User:show(response)
+deactivate eMSS

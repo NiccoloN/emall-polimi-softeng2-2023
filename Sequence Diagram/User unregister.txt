@@ -1,0 +1,16 @@
+title End User unregisters
+
+participant End User
+participant eMSS
+
+
+End User->eMSS:get(settingPage)
+activate eMSS
+End User<--eMSS:show(settingPage)
+deactivate eMSS
+
+End User->eMSS:unregister()
+activate eMSS
+eMSS->eMSS:deleteAccount()
+eMSS-->End User:show(response)
+deactivate eMSS

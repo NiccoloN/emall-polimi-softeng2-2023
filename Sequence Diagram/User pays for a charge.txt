@@ -1,0 +1,27 @@
+title End User Pays for a charge
+
+participant End User
+participant eMSS
+participant bank API
+
+
+
+End User->eMSS:get(personalPage)
+activate eMSS
+End User<--eMSS:show(personalPage)
+deactivate eMSS
+
+End User->eMSS:selectCharge(chargeToPay)
+activate eMSS
+eMSS-->End User:show(chargeDetails)
+deactivate eMSS
+
+End User->eMSS:pay(paymentInfos)
+activate eMSS
+eMSS->bank API:paymentRequest(paymentInfos)
+activate bank API
+bank API-->eMSS:response
+deactivate bank API
+eMSS->eMSS:updateHistory(response)
+eMSS-->End User:show(response)
+deactivate eMSS
