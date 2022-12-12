@@ -1,21 +1,19 @@
-title End User start charging a vehicle
-
-participant End User
+participant end-user
 participant eMSS
 participant CPMS
 
 
-End User->eMSS:select(chargingStation)
+end-user->eMSS:select(chargingStation)
 activate eMSS
 eMSS->CPMS:getInfo(chargingStation)
 activate CPMS
 CPMS->CPMS:search(chargingStation)
 CPMS-->eMSS:chargingStationInfos
 deactivate CPMS
-eMSS-->End User:show(detailsPage)
+eMSS-->end-user:show(detailsPage)
 deactivate eMSS
 
-End User->eMSS:startCharging()
+end-user->eMSS:startCharging()
 activate eMSS
 eMSS->CPMS:requestCharge()
 activate CPMS
@@ -23,5 +21,5 @@ CPMS->CPMS:checkNoBookings()
 CPMS->CPMS:startCharging()
 CPMS-->eMSS:response
 deactivate CPMS
-eMSS-->End User:show(response)
+eMSS-->end-user:show(response)
 deactivate eMSS

@@ -1,31 +1,29 @@
-title End User books a charge
-
-actor End User
+participant end-user
 participant eMSS
 participant CPMS
 
 
-End User->eMSS:select(chargingStation)
+end-user->eMSS:select(chargingStation)
 activate eMSS
 eMSS->CPMS:getInfo(chargingStation)
 activate CPMS
 CPMS->CPMS:search(chargingStation)
 CPMS-->eMSS:chargingStationInfos
 deactivate CPMS
-eMSS-->End User:show(detailsPage)
+eMSS-->end-user:show(detailsPage)
 deactivate eMSS
 
-End User->eMSS:get(bookingPage)
+end-user->eMSS:get(bookingPage)
 activate eMSS
-eMSS-->End User:show(bookingPage)
+eMSS-->end-user:show(bookingPage)
 deactivate eMSS
 
-End User->eMSS:book(bookingInfos)
+end-user->eMSS:book(bookingInfos)
 activate eMSS
 eMSS->CPMS:book(bookingInfos)
 activate CPMS
 CPMS->CPMS:check(bookingInfos)
 CPMS-->eMSS:response
 deactivate CPMS
-eMSS-->End User:show(response)
+eMSS-->end-user:show(response)
 deactivate eMSS

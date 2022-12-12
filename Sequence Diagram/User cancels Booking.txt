@@ -1,18 +1,16 @@
-title End User cancels a Booking
-
-actor End User
+participant end-user
 participant eMSS
 participant CPMS
 
 
-End User->eMSS:get(personalPage)
+end-user->eMSS:get(personalPage)
 activate eMSS
 eMSS->eMSS:load(bookingList, chargeHistory)
-eMSS-->End User:show(personalPage)
+eMSS-->end-user:show(personalPage)
 deactivate eMSS
 
 
-End User->eMSS:cancel(booking)
+end-user->eMSS:cancel(booking)
 activate eMSS
 eMSS->CPMS:cancel(booking)
 activate CPMS
@@ -20,5 +18,5 @@ CPMS->CPMS:search(booking)
 CPMS->CPMS:delete(booking)
 CPMS-->eMSS:response
 deactivate CPMS
-eMSS-->End User:show(response)
+eMSS-->end-user:show(response)
 deactivate eMSS

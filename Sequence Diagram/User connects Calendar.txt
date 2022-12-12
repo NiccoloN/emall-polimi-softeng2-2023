@@ -1,5 +1,6 @@
 participant end-user
 participant eMSS
+participant calendar API
 
 
 end-user->eMSS:get(settingPage)
@@ -7,8 +8,11 @@ activate eMSS
 end-user<--eMSS:show(settingPage)
 deactivate eMSS
 
-end-user->eMSS:unregister()
+end-user->eMSS:connectCalendar()
 activate eMSS
-eMSS->eMSS:deleteAccount()
+eMSS->calendar API:connectRequest()
+activate calendar API
+calendar API-->eMSS:response
+deactivate calendar API
 eMSS-->end-user:show(response)
 deactivate eMSS

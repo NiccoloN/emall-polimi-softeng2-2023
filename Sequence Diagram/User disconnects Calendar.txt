@@ -1,14 +1,14 @@
 participant end-user
+
 participant eMSS
 
 
-end-user->eMSS:get(myVehiclesPage)
+end-user->eMSS:get(settingPage)
 activate eMSS
-end-user<--eMSS:show(myVehiclesPage)
+end-user<--eMSS:show(settingPage)
 deactivate eMSS
 
-end-user->eMSS:addVehicle(vehicle)
+end-user->eMSS:disconnectCalendar()
 activate eMSS
-eMSS->eMSS:save(vehicle)
 eMSS-->end-user:show(response)
 deactivate eMSS

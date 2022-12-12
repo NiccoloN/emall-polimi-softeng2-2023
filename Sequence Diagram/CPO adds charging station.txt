@@ -1,0 +1,9 @@
+participant CPO
+participant CPMS
+
+
+CPO->CPMS:addChargingStation(chargingStationInfos)
+activate CPMS
+CPMS->CPMS:save(charginStationInfos)
+CPMS-->CPO:show(response)
+deactivate CPMS
