@@ -1,0 +1,14 @@
+participant end-user
+participant eMSS
+
+
+end-user->eMSS:get(myVehiclesPage)
+activate eMSS
+end-user<--eMSS:show(myVehiclesPage)
+deactivate eMSS
+
+end-user->eMSS:addVehicle(vehicle)
+activate eMSS
+eMSS->eMSS:save(vehicle)
+eMSS-->end-user:show(response)
+deactivate eMSS

@@ -1,0 +1,13 @@
+participant CPO
+participant CPMS
+participant DSO
+
+
+CPO->CPMS:select(DSO)
+activate CPMS
+CPMS->DSO:get(DSOinfo)
+activate DSO
+DSO-->CPMS:DSOinfo
+deactivate DSO
+CPMS-->CPO:show(DSOinfo)
+deactivate CPMS

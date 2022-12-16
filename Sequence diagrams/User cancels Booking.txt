@@ -1,0 +1,22 @@
+participant end-user
+participant eMSS
+participant CPMS
+
+
+end-user->eMSS:get(personalPage)
+activate eMSS
+eMSS->eMSS:load(bookingList, chargeHistory)
+eMSS-->end-user:show(personalPage)
+deactivate eMSS
+
+
+end-user->eMSS:cancel(booking)
+activate eMSS
+eMSS->CPMS:cancel(booking)
+activate CPMS
+CPMS->CPMS:search(booking)
+CPMS->CPMS:delete(booking)
+CPMS-->eMSS:response
+deactivate CPMS
+eMSS-->end-user:show(response)
+deactivate eMSS

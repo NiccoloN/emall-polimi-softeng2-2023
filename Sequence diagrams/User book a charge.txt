@@ -1,0 +1,29 @@
+participant end-user
+participant eMSS
+participant CPMS
+
+
+end-user->eMSS:select(chargingStation)
+activate eMSS
+eMSS->CPMS:getInfo(chargingStation)
+activate CPMS
+CPMS->CPMS:search(chargingStation)
+CPMS-->eMSS:chargingStationInfos
+deactivate CPMS
+eMSS-->end-user:show(detailsPage)
+deactivate eMSS
+
+end-user->eMSS:get(bookingPage)
+activate eMSS
+eMSS-->end-user:show(bookingPage)
+deactivate eMSS
+
+end-user->eMSS:book(bookingInfos)
+activate eMSS
+eMSS->CPMS:book(bookingInfos)
+activate CPMS
+CPMS->CPMS:check(bookingInfos)
+CPMS-->eMSS:response
+deactivate CPMS
+eMSS-->end-user:show(response)
+deactivate eMSS
