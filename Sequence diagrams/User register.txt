@@ -1,0 +1,15 @@
+participant end-user
+participant eMSS
+participant payment API
+
+
+end-user->eMSS:signUp(infos)
+activate eMSS
+
+eMSS->payment API:verificationRequest(paymentMethod)
+activate payment API
+payment API-->eMSS:response
+deactivate payment API
+eMSS->eMSS:createNewUser(infos)
+eMSS-->end-user:show(response)
+deactivate eMSS

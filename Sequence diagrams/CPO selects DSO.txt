@@ -1,5 +1,6 @@
 participant CPO
 participant CPMS
+participant ChargingStationAPI
 
 
 CPO->CPMS:select(chargingStations[])
@@ -7,8 +8,15 @@ activate CPMS
 CPMS-->CPO:show(result)
 deactivate CPMS
 
+CPO->CPMS:getDSOList()
+activate CPMS
+CPMS-->CPO:DSOList
+deactivate CPMS
 CPO->CPMS:setDSO(DSO)
 activate CPMS
-CPMS->CPMS:updateStations()
+CPMS->ChargingStationAPI:updateStations()
+activate ChargingStationAPI
+ChargingStationAPI-->CPMS:response
+deactivate ChargingStationAPI
 CPMS-->CPO:show(response)
 deactivate CPMS

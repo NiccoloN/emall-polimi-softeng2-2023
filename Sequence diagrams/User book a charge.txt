@@ -1,13 +1,17 @@
 participant end-user
 participant eMSS
 participant CPMS
+participant ChargingStationAPI
 
 
 end-user->eMSS:select(chargingStation)
 activate eMSS
 eMSS->CPMS:getInfo(chargingStation)
 activate CPMS
-CPMS->CPMS:search(chargingStation)
+CPMS->ChargingStationAPI:getInfo(chargingStation)
+activate ChargingStationAPI
+ChargingStationAPI-->CPMS:chargingStationInfos
+deactivate ChargingStationAPI
 CPMS-->eMSS:chargingStationInfos
 deactivate CPMS
 eMSS-->end-user:show(detailsPage)

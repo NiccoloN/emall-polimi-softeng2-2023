@@ -1,5 +1,6 @@
 participant CPO
 participant CPMS
+participant ChargingStationAPI
 
 
 CPO->CPMS:select(chargingStations[])
@@ -9,6 +10,9 @@ deactivate CPMS
 
 CPO->CPMS:setPrice(price)
 activate CPMS
-CPMS->CPMS:updateStations()
+CPMS->ChargingStationAPI:updateStations()
+activate ChargingStationAPI
+ChargingStationAPI-->CPMS:response
+deactivate ChargingStationAPI
 CPMS-->CPO:show(response)
 deactivate CPMS

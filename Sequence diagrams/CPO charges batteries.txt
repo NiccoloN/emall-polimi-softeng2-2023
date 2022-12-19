@@ -1,11 +1,12 @@
 participant CPO
 participant CPMS
+participant ChargingStationAPI
 
 
 CPO->CPMS:chargeBatteries(chargingStations[])
 activate CPMS
-CPMS->CPMS:startCharging()
-CPMS-->CPO:show(startingSuccessful)
-CPMS->CPMS:endCharging()
-CPMS-->CPO:show(batteriesFull)
+CPMS->ChargingStationAPI:startCharging()
+activate ChargingStationAPI
+ChargingStationAPI-->CPMS:response
+CPMS-->CPO:show(response)
 deactivate CPMS

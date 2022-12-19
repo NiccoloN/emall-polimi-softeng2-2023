@@ -1,11 +1,17 @@
+
+participant vehicle API
 participant end-user
+
 participant eMSS
 
+activate end-user
+end-user->end-user:searchVehicles()
+deactivate end-user
 
-end-user->eMSS:get(myVehiclesPage)
-activate eMSS
-end-user<--eMSS:show(myVehiclesPage)
-deactivate eMSS
+end-user->vehicle API:connect(vehicleName)
+activate vehicle API
+vehicle API-->end-user:response
+deactivate vehicle API
 
 end-user->eMSS:addVehicle(vehicle)
 activate eMSS

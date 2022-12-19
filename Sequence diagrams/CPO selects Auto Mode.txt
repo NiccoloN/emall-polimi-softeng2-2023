@@ -1,6 +1,5 @@
 participant CPO
 participant CPMS
-participant ChargingStationAPI
 
 
 CPO->CPMS:select(chargingStations[])
@@ -8,11 +7,10 @@ activate CPMS
 CPMS-->CPO:show(result)
 deactivate CPMS
 
-CPO->CPMS:setEnergyMix(energyMix)
+CPO->CPMS:setAutoMode(infos)
 activate CPMS
 CPMS->ChargingStationAPI:updateStations()
 activate ChargingStationAPI
 ChargingStationAPI-->CPMS:response
 deactivate ChargingStationAPI
 CPMS-->CPO:show(response)
-deactivate CPMS

@@ -1,13 +1,13 @@
 participant CPO
 participant CPMS
-participant DSO
+participant DSO API
 
 
 CPO->CPMS:select(DSO)
 activate CPMS
-CPMS->DSO:get(DSOinfo)
-activate DSO
-DSO-->CPMS:DSOinfo
-deactivate DSO
-CPMS-->CPO:show(DSOinfo)
+CPMS->DSO API:getDetails()
+activate DSO API
+DSO API-->CPMS:details
+deactivate DSO API
+CPMS-->CPO:show(details)
 deactivate CPMS

@@ -2,8 +2,7 @@ participant end-user
 participant eMSS
 
 
-end-user->eMSS:unregister()
+end-user->eMSS:disconnectVehicle(vehicle)
 activate eMSS
-eMSS->eMSS:deleteAccount()
 eMSS-->end-user:show(response)
 deactivate eMSS

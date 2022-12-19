@@ -3,17 +3,6 @@ participant eMSS
 participant bank API
 
 
-
-end-user->eMSS:get(personalPage)
-activate eMSS
-end-user<--eMSS:show(personalPage)
-deactivate eMSS
-
-end-user->eMSS:selectCharge(chargeToPay)
-activate eMSS
-eMSS-->end-user:show(chargeDetails)
-deactivate eMSS
-
 end-user->eMSS:pay(paymentInfos)
 activate eMSS
 eMSS->bank API:paymentRequest(paymentInfos)
