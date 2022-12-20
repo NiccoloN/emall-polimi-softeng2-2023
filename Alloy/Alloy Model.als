@@ -184,10 +184,12 @@ fact eachPaymentAssociatedToOnePaymentMethod {
 
 //all "distinct" constraints...
 
-	//I know that this is fine, but what if you register your dads' card and so do he?
+//I know that this is fine, but what if you register your dads' card and so do he?
+//Have NO idea if it will work
 fact everyPaymentMethodIsDifferent {
-	all e1, e2: EndUser | e1 != e2 => // given two different endUsers
-		e1.paymentMethod != e2.paymentMethod
+	all e1, e2: EndUser | 
+		(e1 != e2 implies		// given two different endUsers
+		 e1.paymentMethod != e2.paymentMethod)
 }
 	//Tought about differentiating vehicles but the same argument can be applied
 	//Tried to think about examples but only came up with trivial stuff 
@@ -195,9 +197,11 @@ fact everyPaymentMethodIsDifferent {
 		
 //all CPMS constraints...
 
+	//Need testing... probably wrong
 fact oneCPOperStation{
-	all cpo1, cpo2: CPO | cpo1 != cpo2 => //For every two different CPO
-		cpo1.chargingStation not in cpo2.chargingStation //Their stations must be different
+	all cpo1, cpo2: CPO | all cs1: cpo1.chargingStation | all cs2: cpo2.chargingStation
+		(cpo1 != cpo2  implies //For every two different CPO
+			cs1 != cS2)
 }
 	//idk if its right, as should be like for each chargingStation of cpo1
 	
