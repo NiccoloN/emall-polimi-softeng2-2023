@@ -10,9 +10,9 @@ abstract sig User {
 sig EndUser extends User {
 	paymentMethod: one PaymentMethod,
 	calendar: lone Calendar,
-	vehicles: some Vehicle, //some is not correct
-	bookings: some Booking,//same
-	charges: some Charge//same
+	vehicles: some Vehicle, //For the vehicle it seems correct, need at least one vehicle BUT the vehicle must already exist, isn't it?
+	bookings: set Booking, //Maybe set because the use may not book noothing, just created account
+	charges: set Charge //same
 }{id > 0}
 
 sig CPO extends User {
@@ -52,7 +52,11 @@ sig Booking {
 }
 
 sig PaymentMethod {
-	//don't know what to insert
+	//Payment method may vary... I don't remember if we assumed PayPal, Satispay TC
+	//Now it seems easier to just let credit card, as otherwise we would have to diversify here, maybe create more sigs
+		//That is not a problem, problem is in the class diagram
+	cardNumber: one Int,
+	secureCode: one Int
 }
 
 sig Payment {
@@ -108,10 +112,16 @@ fact eachEndUserHasOnePaymentMethod {
 	all e: EndUser | one p: PaymentMethod |
 		e.paymentMethod = p
 }
-
+// Is there a more elegant way to do this two (up and down)?
+// I know they are conceptually different but they are the same code, does it change??
 fact eachPaymentMethodIsOwnedByOneEndUser {
 	all p: PaymentMethod | one e: EndUser |
 		e.paymentMethod = p 
+}
+
+fact eachPaymentMethodIsOwnedByOneEndUser {
+	all: e1, e2: EndUser | e1 != e2 => // given two different endUsers
+		e1.paymentMethod != e2.paymentMethod
 }
 
 fact eachStationHasDifferentLocation {
@@ -140,12 +150,13 @@ fact eachNotificationOwnedByOneEndUser {
 	all n: Notification | one e: EndUser |
 		n.enduser = e 
 } // not sure if we can specify it for the abstract class to let the sub inherit
-
+	//Makes sense to Marcos 
+	
 fact eachReminderAssociatedToOneBooking {
 	all r: Reminder | one b: Booking |
 		r.booking = b
 }
-
+// Is there a more elegant way to do this two (up and down)?
 fact eachBookingAssociatedToOneReminder {
 	all b: Booking | one r: Reminder |
 		r.booking = b
@@ -172,11 +183,24 @@ fact eachPaymentAssociatedToOnePaymentMethod {
 }
 
 //all "distinct" constraints...
+
+	//I know that this is fine, but what if you register your dads card and so do he?
+fact everyPaymentMethodIsDifferent {
+	all e1, e2: EndUser | e1 != e2 => // given two different endUsers
+		e1.paymentMethod != e2.paymentMethod
+}
+	//Tought about differentiating vehicles but the same argument can be applied
+	//Tried to think about examples but only came up with trivial stuff 
+		//Users calendar must be different for example
+		
 //all CPMS constraints...
 
-
-
-
+fact oneCPOperStation{
+	all cpo1, cpo2: CPO | cpo1 != cpo2 => //For every two different CPO
+		cpo1.chargingStation not in cpo2.chargingStation //Their stations must be different
+}
+	//idk if its right, as should be like for each chargingStation of cpo1
+	
 
 
 
