@@ -10,7 +10,7 @@ abstract sig User {
 sig EndUser extends User {
 	paymentMethod: one PaymentMethod,
 	calendar: lone Calendar,
-	vehicles: some Vehicle, //For the vehicle it seems correct, need at neast one vehicle BUT the vehicle must already exist, isn't it?
+	vehicles: set Vehicle, //For the vehicle it seems correct, need at neast one vehicle BUT the vehicle must already exist, isn't it?
 	bookings: set Booking, //Maybe set because the user may not book nothing, just create an account
 	charges: set Charge //same
 }{id > 0}
