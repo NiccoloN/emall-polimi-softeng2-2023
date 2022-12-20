@@ -10,8 +10,8 @@ abstract sig User {
 sig EndUser extends User {
 	paymentMethod: one PaymentMethod,
 	calendar: lone Calendar,
-	vehicles: some Vehicle, //For the vehicle it seems correct, need at least one vehicle BUT the vehicle must already exist, isn't it?
-	bookings: set Booking, //Maybe set because the use may not book noothing, just created account
+	vehicles: some Vehicle, //For the vehicle it seems correct, need at neast one vehicle BUT the vehicle must already exist, isn't it?
+	bookings: set Booking, //Maybe set because the user may not book nothing, just create an account
 	charges: set Charge //same
 }{id > 0}
 
@@ -52,7 +52,7 @@ sig Booking {
 }
 
 sig PaymentMethod {
-	//Payment method may vary... I don't remember if we assumed PayPal, Satispay TC
+	//Payment method may vary... I don't remember if we assumed PayPal, Satispay etc
 	//Now it seems easier to just let credit card, as otherwise we would have to diversify here, maybe create more sigs
 		//That is not a problem, problem is in the class diagram
 	cardNumber: one Int,
@@ -184,7 +184,7 @@ fact eachPaymentAssociatedToOnePaymentMethod {
 
 //all "distinct" constraints...
 
-	//I know that this is fine, but what if you register your dads card and so do he?
+	//I know that this is fine, but what if you register your dads' card and so do he?
 fact everyPaymentMethodIsDifferent {
 	all e1, e2: EndUser | e1 != e2 => // given two different endUsers
 		e1.paymentMethod != e2.paymentMethod
