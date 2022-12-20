@@ -52,11 +52,7 @@ sig Booking {
 }
 
 sig PaymentMethod {
-	//Payment method may vary... I don't remember if we assumed PayPal, Satispay etc
-	//Now it seems easier to just let credit card, as otherwise we would have to diversify here, maybe create more sigs
-		//That is not a problem, problem is in the class diagram
-	cardNumber: one Int,
-	secureCode: one Int
+
 }
 
 sig Payment {
