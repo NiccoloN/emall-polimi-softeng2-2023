@@ -63,8 +63,8 @@ sig ChargingStation {
 	location: one Location,
 	cost: one CostTable,
 	chargingSockets: some ChargingSocket,
-	listDSO: some DSO
-	//Doesnt make sense to have DSOs on CPO, because he can have multiples CSs
+	listDSO: some DSO, 	//Doesnt make sense to have DSOs on CPO, because he can have multiples CSs
+	listSpecialOffers: some SpecialOffer
 }--{id > 0}
 
 sig ChargingSocket {
@@ -118,6 +118,7 @@ sig Float {}
 //------------------------------------Facts------------------------------------------//
 //-------------------------------------------------------------------------------------//
 
+// User facts
 fact eachEndUserHasOnePaymentMethod {
 	all e: EndUser | one p: PaymentMethod |
 		e.paymentMethod = p
@@ -186,7 +187,7 @@ fact oneUserForCalendar {
 		e.calendar = c
 }
 
-//------- Distinctions constraints ------------ //
+//------------- Distinctions constraints ------------ //
 
 fact everyPaymentMethodIsDifferent {
 	all e1, e2: EndUser | 
@@ -223,6 +224,17 @@ fact eachSocketInOneStation {
 fact eachSocketHasType {
 	all s: ChargingSocket | one t: ChargingSocketType|
 		s.type = t
+}
+
+fact eachSpecialOfferBelongsToOneChargingStation{
+	one spo: SpecialOffer | one ch: ChargingStation |
+		spo in ch.listSpecialOffers
+}
+
+--I cant figure it out!!
+fact noSharingSpecialOffers {
+	all ch1, ch2: ChargingStation |
+		ch1.listSpecialOffers != ch2.listSpecialOffers
 }
 
 //---------- Redundant instances ------------------
@@ -268,7 +280,7 @@ fact noRedundantFloat{
 //in slides is said that assertions are to verify something we want to rove
 //empty space because i have no idea on what we need to verify
 
-// Marcos: I dont think we need to pt any assertions at all, fra
+// Marcos: I dont think we need to put any assertions at all, fra, just test the general structure
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Show------------------------------------------//
