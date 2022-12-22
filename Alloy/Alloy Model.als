@@ -173,7 +173,7 @@ fact oneUserForCalendar {
 		e.calendar = c
 }
 
-// Distinct constraints
+//------- Distinctions constraints ------------ //
 
 fact everyPaymentMethodIsDifferent {
 	all e1, e2: EndUser | 
@@ -202,21 +202,16 @@ fact eachSocketHasType {
 		s.type = t
 }
 
-//---- Datetime restrictions -------
-
-fact noDateTimeShare{
-	all sp: SpecialOffer |
-		sp.startTime != sp.endTime
-}
-
 //---------- Redundant instances ------------------
 fact noRedundantLocations {
 	all l: Location | one c: ChargingStation |
 		c.location = l
 }
 
+//As we are talking of dates, the only restriction is this
 fact noRedundantDateTime{
-
+	all sp: SpecialOffer |
+		sp.startTime != sp.endTime
 }
 
 fact noRedundantCostTableChargingStations{
@@ -236,9 +231,12 @@ fact noRedundantCostTableBetween{
 		sp.prices != cs.cost
 }
 
+//Integer is a internal type, i dont think we need to prevent this
 fact noRedundantInteger{}
-
-fact noRedundantFloat{}
+fact noRedundantFloat{
+	all ch1, ch2: Charge |
+		ch1 != ch2 implies ch1.cost != ch2.cost
+}
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Assertions-----------------------------------//
@@ -254,11 +252,12 @@ fact noRedundantFloat{}
 //-------------------------------------------------------------------------------------//
 
 pred show {
-	#CPO = 6
-	#ChargingStation = 5	//something wrong in declaring this
-					//maybe some fact is preventing having more stations than CPO
+	#CPO = 2
+	#ChargingStation = 3
 	#EndUser = 3
-	#DSO = 1
+	#DSO = 2
+	#ChargingSocket = 4
+	#SpecialOffer = 2
 }
 
 run show for 10

@@ -5,4 +5,6 @@
 
 - Removed the second fact regarding CPO and CS. Think Fra is right
 
+- I dont get the "fact noRedundantInteger{} fact noRedundantFloat{}"
+
 
