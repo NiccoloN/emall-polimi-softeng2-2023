@@ -229,8 +229,11 @@ fact noRedundantLocations {
 fact noRedundantDateTime{}
 
 fact noRedundantCostTable{
-	all ct: CostTable | one so: SpecialOffer | one s: ChargingStation |
-		ct = s.cost or ct = so.prices
+	all cs1, cs2: ChargingStation | all sp1, sp2: SpecialOffer |
+		(cs1 != cs2 implies
+		cs1.cost != cs2.cost) and
+		(sp1 != sp2 implies
+		sp1.prices != sp2.prices)
 }
 
 fact noRedundantInteger{}
@@ -252,7 +255,7 @@ fact noRedundantFloat{}
 
 pred show {
 	#CPO = 2
-	#ChargingStation = 2	//something wrong in declaring this
+	#ChargingStation = 5	//something wrong in declaring this
 					//maybe some fact is preventing having more stations than CPO
 	#EndUser = 0
 	#DSO = 1
