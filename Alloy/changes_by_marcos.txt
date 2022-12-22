@@ -1,0 +1,8 @@
+- Removed all IDs, they dont help on the alloy, just pollute
+	BUT they maye be necessary altought useless, we have to discuss
+
+- Removed powerSupplid of sockets for the same reason
+
+- Removed the second fact regarding CPO and CS. Think Fra is right
+
+

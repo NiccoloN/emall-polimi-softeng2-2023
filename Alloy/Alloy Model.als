@@ -173,7 +173,7 @@ fact oneUserForCalendar {
 		e.calendar = c
 }
 
-//all "distinct" constraints...
+// Distinct constraints
 
 fact everyPaymentMethodIsDifferent {
 	all e1, e2: EndUser | 
@@ -181,16 +181,7 @@ fact everyPaymentMethodIsDifferent {
 }
 	
 
-//-------- CPMS constraints -------------
-
-fact oneCPOperStation{
-	//all cpo1, cpo2: CPO | all cs : ChargingStation |
-		//(cs in cpo1.chargingStations implies cs not in cpo2.chargingStations)
-}
-//i think that the below fact (arrow down \|/) implies the above (arrow up /|\)
-//but not vice versa
-//in the above there could exist a case in which a cs is not owned by anyone
-
+//------------ CPMS constraints -------------
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
 		s in c.chargingStations
@@ -218,22 +209,31 @@ fact noDateTimeShare{
 		sp.startTime != sp.endTime
 }
 
-//redundant instances
-//only to not show useless instances in the world
-
+//---------- Redundant instances ------------------
 fact noRedundantLocations {
 	all l: Location | one c: ChargingStation |
 		c.location = l
 }
 
-fact noRedundantDateTime{}
+fact noRedundantDateTime{
 
-fact noRedundantCostTable{
-	all cs1, cs2: ChargingStation | all sp1, sp2: SpecialOffer |
+}
+
+fact noRedundantCostTableChargingStations{
+	all cs1, cs2: ChargingStation |
 		(cs1 != cs2 implies
-		cs1.cost != cs2.cost) and
+		cs1.cost != cs2.cost) 
+}
+
+fact noRedundantCostTableSpecialOffer{
+	all sp1, sp2: SpecialOffer |
 		(sp1 != sp2 implies
 		sp1.prices != sp2.prices)
+}
+
+fact noRedundantCostTableBetween{
+	all sp: SpecialOffer | all cs: ChargingStation |
+		sp.prices != cs.cost
 }
 
 fact noRedundantInteger{}
@@ -254,10 +254,10 @@ fact noRedundantFloat{}
 //-------------------------------------------------------------------------------------//
 
 pred show {
-	#CPO = 2
+	#CPO = 6
 	#ChargingStation = 5	//something wrong in declaring this
 					//maybe some fact is preventing having more stations than CPO
-	#EndUser = 0
+	#EndUser = 3
 	#DSO = 1
 }
 
