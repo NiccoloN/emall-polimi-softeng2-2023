@@ -4,8 +4,7 @@
 
 //------------------------------------USERS----------------------------------------//
 abstract sig User {
-	id: one Int
-}{id > 0}
+}
 
 sig EndUser extends User {
 	paymentMethod: one PaymentMethod,
@@ -13,12 +12,11 @@ sig EndUser extends User {
 	vehicles: set Vehicle, 
 	bookings: set Booking, 
 	charges: set Charge 
-}{id > 0}
+}
 
 sig CPO extends User {
-	listDSO: some DSO,
-	chargingStations: some ChargingStation
-}{id > 0}
+	chargingStations: set ChargingStation
+}
 
 //-------------------------------------eMSS-----------------------------------------//
 abstract sig Notification {
@@ -40,8 +38,7 @@ sig Suggestion extends Notification {
 }
 
 sig Vehicle {
-	id: one Int
-}{id > 0}
+}
 
 sig Booking {
 	start: one DateTime,
@@ -60,19 +57,17 @@ sig Payment {
 
 //-------------------------------------CPMS-----------------------------------------//
 sig ChargingStation {
-	id: one Int,
 	location: one Location,
 	cost: one CostTable,
 	chargingSockets: some ChargingSocket,
-	listDSO: some DSO //maybe we could remove this and let it be only in the CSO
-}{id > 0}
+	listDSO: some DSO //maybe we could remove this and let it be only in the CPO
+}
 
 sig ChargingSocket {
-	id: one Int,
 	isOccupied: one Boolean,
-	powerSupplied: one Int,
+	//powerSupplied: one Int,
 	type: one ChargingSocketType
-}{id > 0 and powerSupplied>0}
+}//{powerSupplied>0}
 
 sig SpecialOffer {
 	startTime: one DateTime,
@@ -96,7 +91,7 @@ sig Calendar{}
 
 sig DSO{}
 
-//-------------------------------------util types------------------------------------//
+//------------------------------------- Defining new types------------------------------------//
 abstract sig ChargingSocketType {}
 one sig SLOW extends ChargingSocketType{}
 one sig FAST extends ChargingSocketType{}
@@ -128,17 +123,9 @@ fact eachPaymentMethodIsOwnedByOneEndUser {
 		e.paymentMethod = p 
 }
 
-fact eachUserHasUniqueId {
-	no disj u1, u2 : User | u1.id = u2.id
-}
-
 fact eachVehicleOwnedByOneEndUser {
 	all v: Vehicle | one e: EndUser |
 		v in e.vehicles
-}
-
-fact eachVehicleHasUniqueId {
-	no disj v1, v2 : Vehicle | v1.id = v2.id
 }
 
 fact eachBookingOwnedByOneEndUser {
@@ -194,26 +181,16 @@ fact everyPaymentMethodIsDifferent {
 }
 	
 
-//all CPMS constraints...
-
-fact eachChargingStationHasUniqueId {
-	no disj c1, c2 : ChargingStation | c1.id = c2.id
-}
-
-fact eachChargingSocketHasUniqueId {
-	no disj c1, c2 : ChargingSocket | c1.id = c2.id
-}
+//-------- CPMS constraints -------------
 
 fact oneCPOperStation{
-	all cpo1, cpo2: CPO | all cs1,cs2: ChargingStation |
-		(cpo1 != cpo2 and 
-		cs1 in cpo1.chargingStations and 
-		cs2 in cpo2.chargingStations) 
-		implies	cs1 != cs2
+	//all cpo1, cpo2: CPO | all cs : ChargingStation |
+		//(cs in cpo1.chargingStations implies cs not in cpo2.chargingStations)
 }
 //i think that the below fact (arrow down \|/) implies the above (arrow up /|\)
 //but not vice versa
 //in the above there could exist a case in which a cs is not owned by anyone
+
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
 		s in c.chargingStations
@@ -234,15 +211,12 @@ fact eachSocketHasType {
 		s.type = t
 }
 
-fact sameDSOList {
-	all c: CPO | all s: ChargingStation |
-		s in c.chargingStations implies s.listDSO = c.listDSO
+//---- Datetime restrictions -------
+
+fact noDateTimeShare{
+	all sp: SpecialOffer |
+		sp.startTime != sp.endTime
 }
-
-//datetime consistences... (or remove datetime)
-
-
-
 
 //redundant instances
 //only to not show useless instances in the world
@@ -270,16 +244,18 @@ fact noRedundantFloat{}
 //in slides is said that assertions are to verify something we want to rove
 //empty space because i have no idea on what we need to verify
 
+// Marcos: I dont think we need to pt any assertions at all, fra
+
 //-------------------------------------------------------------------------------------//
 //------------------------------------Show------------------------------------------//
 //-------------------------------------------------------------------------------------//
 
 pred show {
 	#CPO = 2
-	//#ChargingStation = 4	//something wrong in declaring this
+	#ChargingStation = 2	//something wrong in declaring this
 					//maybe some fact is preventing having more stations than CPO
-	#EndUser = 4
-	#DSO = 3
+	#EndUser = 0
+	#DSO = 1
 }
 
 run show for 10
