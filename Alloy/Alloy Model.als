@@ -4,7 +4,8 @@
 
 //------------------------------------USERS----------------------------------------//
 abstract sig User {
-}
+	id: one Int
+}{id > 0}
 
 sig EndUser extends User {
 	paymentMethod: one PaymentMethod,
@@ -12,7 +13,7 @@ sig EndUser extends User {
 	vehicles: set Vehicle, 
 	bookings: set Booking, 
 	charges: set Charge 
-}
+}{id > 0}
 
 sig CPO extends User {
 	chargingStations: set ChargingStation
@@ -38,7 +39,8 @@ sig Suggestion extends Notification {
 }
 
 sig Vehicle {
-}
+	id: one Int
+}{id > 0}
 
 sig Booking {
 	start: one DateTime,
@@ -57,13 +59,16 @@ sig Payment {
 
 //-------------------------------------CPMS-----------------------------------------//
 sig ChargingStation {
+	id: one Int,
 	location: one Location,
 	cost: one CostTable,
 	chargingSockets: some ChargingSocket,
-	listDSO: some DSO //maybe we could remove this and let it be only in the CPO
-}
+	listDSO: some DSO
+	//Doesnt make sense to have DSOs on CPO, because he can have multiples CSs
+}{id > 0}
 
 sig ChargingSocket {
+	id: one Int,
 	isOccupied: one Boolean,
 	//powerSupplied: one Int,
 	type: one ChargingSocketType
@@ -123,9 +128,17 @@ fact eachPaymentMethodIsOwnedByOneEndUser {
 		e.paymentMethod = p 
 }
 
+fact eachUserHasUniqueId {
+	no disj u1, u2 : User | u1.id = u2.id
+}
+
 fact eachVehicleOwnedByOneEndUser {
 	all v: Vehicle | one e: EndUser |
 		v in e.vehicles
+}
+
+fact eachVehicleHasUniqueId {
+	no disj v1, v2 : Vehicle | v1.id = v2.id
 }
 
 fact eachBookingOwnedByOneEndUser {
@@ -182,6 +195,16 @@ fact everyPaymentMethodIsDifferent {
 	
 
 //------------ CPMS constraints -------------
+
+fact eachChargingStationHasUniqueId {
+	no disj c1, c2 : ChargingStation | c1.id = c2.id
+}
+
+fact eachChargingSocketHasUniqueId {
+	no disj c1, c2 : ChargingSocket | 
+		c1.id = c2.id
+}
+
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
 		s in c.chargingStations
