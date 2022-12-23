@@ -20,6 +20,10 @@ sig CPO extends User {
 }
 
 //-------------------------------------eMSS-----------------------------------------//
+sig Vehicle {
+--	id: one Int
+}--{id > 0}
+
 abstract sig Notification {
 	enduser: one EndUser,
 	dateTime: one DateTime,
@@ -37,10 +41,6 @@ sig ChargingEnd extends Notification {
 sig Suggestion extends Notification {
 	chargingStation: some ChargingStation
 }
-
-sig Vehicle {
---	id: one Int
-}--{id > 0}
 
 sig Booking {
 	start: one DateTime,
@@ -148,12 +148,12 @@ fact eachBookingOwnedByOneEndUser {
 		b in e.bookings
 }
 
-fact eachNotificationOwnedByOneEndUser {
+/*fact eachNotificationOwnedByOneEndUser {
 	all n: Notification | one e: EndUser |
 		n.enduser = e
-}
+}*/
 	
-fact eachReminderAssociatedToOneBooking {
+/*fact eachReminderAssociatedToOneBooking {
 	all r: Reminder | one b: Booking |
 		r.booking = b
 }
@@ -161,7 +161,7 @@ fact eachReminderAssociatedToOneBooking {
 fact eachBookingAssociatedToOneReminder {
 	all b: Booking | one r: Reminder |
 		r.booking = b
-}
+}*/
 
 fact eachChargeAssociatedToOneEndUser {
 	all c: Charge | one e: EndUser |
@@ -287,10 +287,18 @@ fact noRedundantFloat{
 
 //No left overs
 
-fact noDateTimeLeft{
-	--all dt: DateTime |all 
-		
-}
+/*fact noDateTimeLeft{
+	all dt: DateTime | one n: Notification | one b: Booking | one so: SpecialOffer | one c: Charge |
+		(dt in n.dateTime) or
+		(dt in b.start) or
+		(dt in b.end) or
+		(dt in so.startTime) or
+		(dt in so.endTime) or
+		(dt in c.startTime) or
+		(dt in c.endTime)
+}*/
+
+
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Assertions-----------------------------------//
