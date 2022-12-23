@@ -16,6 +16,8 @@
 	- Took out all strings, as they were bugging
 
 Need to test other types of notifications: ChargingEnd
+	-Charge owns the notification
+	
 
 DateTime repetitions
 

@@ -21,7 +21,6 @@ sig CPO extends User {
 
 //-------------------------------------eMSS-----------------------------------------//
 sig Vehicle {
-
 }
 
 abstract sig Notification {
@@ -33,9 +32,9 @@ sig Reminder extends Notification {
 
 
 sig ChargingEnd extends Notification {
-	charge: one Charge
 }
 
+/*
 sig Suggestion extends Notification {
 	chargingStation: some ChargingStation
 }
@@ -82,7 +81,8 @@ sig Charge {
 	startTime: one DateTime,
 	endTime: one DateTime,,
 	payment: one Payment,
-	chargingSocket: one ChargingSocket
+	chargingSocket: one ChargingSocket,
+	chargingNotification: one ChargingEnd 
 }
 
 //-------------------------------------external classes---------------------------//
@@ -141,7 +141,6 @@ fact noSharingReminders{
 		b1.reminder != b2.reminder
 }
 
-
 fact eachBookingOwnedByOneEndUser {
 	all b: Booking | one e: EndUser |
 		b in e.bookings
@@ -179,12 +178,22 @@ fact eachChargePayedByProperUser{
 }
 
 //------------- Distinctions constraints ------------ //
+fact oneChargeToOneChargingEnd{
+	all c: Charge | one ch: ChargingEnd|
+		c.chargingNotification = ch
+}
 
+fact noSharingChargingEng {
+	all ch1, ch2: Charge |
+		ch1 != ch2 implies
+		(ch1.chargingNotification != ch2.chargingNotification)
+}
+
+//---------- Distinctions constraints --------- //
 fact everyPaymentMethodIsDifferent {
 	all e1, e2: EndUser | 
 		e1 != e2 implies e1.paymentMethod != e2.paymentMethod
 }
-	
 
 //------------ CPMS constraints -------------
 
@@ -316,7 +325,8 @@ pred show {
 	#ChargingSocket = 4
 	#Booking = 2
 	#Reminder = 2
-	#Charge = 2
+	--#Charge = 2
+	#ChargingEnd = 2
 }
 
 run show for 10
