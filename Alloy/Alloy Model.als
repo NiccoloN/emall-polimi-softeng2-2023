@@ -113,8 +113,8 @@ sig Float {}
 //------------------------------------Facts------------------------------------------//
 //-------------------------------------------------------------------------------------//
 
-// User facts
-fact eachEndUserHasOnePaymentMethod {
+// -------------- User related facts ----------------------------
+fact eachEndserHasOnePaymentMethod {
 	all e: EndUser | one p: PaymentMethod |
 		e.paymentMethod = p
 }
@@ -176,11 +176,6 @@ fact eachChargePayedByProperUser{
 		c.payment.paymentMethod in e.paymentMethod
 }
 
-fact eachSuggestionToOneUser{
---	one sg: Suggestion | all eu: EndUser |
---		eu.suggestion = sg
-}
-
 fact noSharingSuggestion{
 	all e1, e2: EndUser |
 		e1 != e2 implies
@@ -205,7 +200,7 @@ fact everyPaymentMethodIsDifferent {
 		e1 != e2 implies e1.paymentMethod != e2.paymentMethod
 }
 
-//------------ CPMS constraints -------------
+//------------ CPMS constraints ------------- //
 
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
@@ -244,16 +239,11 @@ fact noSharingSpecialOffers {
 		((ch1.listSpecialOffers) not in ch2.listSpecialOffers)
 }
 
-//---------- Redundant instances ------------------
+//------------------- Redundant instances --------------------
 fact noRedundantLocations {
 	all l: Location | one c: ChargingStation |
 		c.location = l
 }
-
-/*fact noRedundantDSO {
-	all d: DSO | some c: CPO |
-		d in c.listDSO
-}*/
 
 fact noRedundantDateTimeSpecialOfffer{
 	all sp: SpecialOffer |
@@ -289,7 +279,7 @@ fact noRedundantCostTableBetween{
 		sp.prices != cs.cost
 }
 
-//DateTime Consistence
+//---------------- DateTime Consistence --------------------
 
 fact uniqueDateTime {
 	all d1, d2: DateTime | d1 != d2 implies d1.i != d2.i
@@ -331,8 +321,6 @@ fact noOverlappingChargesOrBookingsOfUser{
 		(b in e.bookings and c in e.charges and b.chargingSocket != c.chargingSocket) 
 		implies (b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i)
 }//user cannot do a charge and a booking in same timespace unless is the charge associated with that booking
-
-//No left overs
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Show------------------------------------------//
