@@ -12,7 +12,8 @@ sig EndUser extends User {
 	calendar: lone Calendar,
 	vehicles: set Vehicle, 
 	bookings: set Booking, 
-	charges: set Charge 
+	charges: set Charge,
+	suggestion: lone Suggestion
 }
 
 sig CPO extends User {
@@ -32,12 +33,13 @@ sig Reminder extends Notification {
 
 
 sig ChargingEnd extends Notification {
+
 }
-/*
+
 sig Suggestion extends Notification {
 	chargingStation: some ChargingStation
 }
-*/
+
 sig Booking {
 	startTime: one DateTime,
 	endTime: one DateTime,
@@ -175,13 +177,24 @@ fact eachChargePayedByProperUser{
 		c.payment.paymentMethod in e.paymentMethod
 }
 
+fact eachSuggestionToOneUser{
+--	one sg: Suggestion | all eu: EndUser |
+--		eu.suggestion = sg
+}
+
+fact noSharingSuggestion{
+	all e1, e2: EndUser |
+		e1 != e2 implies
+		(e1.suggestion != e2.suggestion)
+}
+
 //------------- Distinctions constraints ------------ //
 fact oneChargeToOneChargingEnd{
 	all c: Charge | one ch: ChargingEnd|
 		c.chargingNotification = ch
 }
 
-fact noSharingChargingEng {
+fact noSharingChargingEnd {
 	all ch1, ch2: Charge |
 		ch1 != ch2 implies
 		(ch1.chargingNotification != ch2.chargingNotification)
@@ -316,7 +329,7 @@ fact noOverlappingChargesOrBookingsOfUser{
 //------------------------------------------------------------------------------------//
 
 pred show {
-	#CPO = 2
+	#CPO = 3
 	#ChargingStation = 3
 	#EndUser = 3
 	#DSO = 2
@@ -325,6 +338,7 @@ pred show {
 	#Reminder = 2
 	#Charge = 2
 	#ChargingEnd = 2
+	#Suggestion = 2
 }
 
 run show for 10
