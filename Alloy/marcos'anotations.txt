@@ -1,10 +1,17 @@
 - Removed all IDs, they dont help on the alloy, just pollute
 	BUT they maye be necessary altought useless, we have to discuss
 
-- Removed powerSupplid of sockets for the same reason
+- Removed powerSupplied of sockets for the same reason
 
 - Removed the second fact regarding CPO and CS. Think Fra is right
 
 - I dont get the "fact noRedundantInteger{}"
+
+---------------------------Needed Changes--------------------------------
+
+DateTime not consistent (try to change it to INT)
+
+Booking not showing
+
 
 

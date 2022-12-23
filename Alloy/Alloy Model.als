@@ -70,9 +70,8 @@ sig ChargingStation {
 sig ChargingSocket {
 	--id: one Int,
 	isOccupied: one Boolean,
-	//powerSupplied: one Int,
 	type: one ChargingSocketType
-}//{powerSupplied>0}
+}
 
 sig SpecialOffer {
 	startTime: one DateTime,
@@ -106,7 +105,9 @@ abstract sig Boolean {}
 one sig TRUE extends Boolean{}
 one sig FALSE extends Boolean{}
 
-sig DateTime{}
+sig DateTime{
+	
+}
 
 sig Location {}
 
@@ -149,7 +150,7 @@ fact eachBookingOwnedByOneEndUser {
 
 fact eachNotificationOwnedByOneEndUser {
 	all n: Notification | one e: EndUser |
-		n.enduser = e 
+		n.enduser = e
 }
 	
 fact eachReminderAssociatedToOneBooking {
@@ -227,14 +228,14 @@ fact eachSocketHasType {
 }
 
 fact eachSpecialOfferBelongsToOneChargingStation{
-	one spo: SpecialOffer | one ch: ChargingStation |
+	all spo: SpecialOffer | one ch: ChargingStation |
 		spo in ch.listSpecialOffers
 }
 
---I cant figure it out!!
 fact noSharingSpecialOffers {
 	all ch1, ch2: ChargingStation |
-		ch1.listSpecialOffers != ch2.listSpecialOffers
+		ch1 != ch2 implies
+		((ch1.listSpecialOffers) not in ch2.listSpecialOffers)
 }
 
 //---------- Redundant instances ------------------
@@ -243,10 +244,21 @@ fact noRedundantLocations {
 		c.location = l
 }
 
-//As we are talking of dates, the only restriction is this
-fact noRedundantDateTime{
+fact noRedundantDateTimeSpecialOfffer{
 	all sp: SpecialOffer |
 		sp.startTime != sp.endTime
+}
+
+fact noSharingDateTimeSpecialOfffer{
+	all sp1, sp2: SpecialOffer |
+		sp1 != sp2 implies
+		(sp1.startTime != sp2.endTime and
+		sp1.startTime != sp2.startTime)
+}
+
+fact noRedundantDateTimeCharge{
+	all c: Charge |
+		c.startTime != c.endTime
 }
 
 fact noRedundantCostTableChargingStations{
@@ -273,6 +285,13 @@ fact noRedundantFloat{
 		ch1 != ch2 implies ch1.cost != ch2.cost
 }
 
+//No left overs
+
+fact noDateTimeLeft{
+	--all dt: DateTime |all 
+		
+}
+
 //-------------------------------------------------------------------------------------//
 //------------------------------------Assertions-----------------------------------//
 //-------------------------------------------------------------------------------------//
@@ -292,7 +311,7 @@ pred show {
 	#EndUser = 3
 	#DSO = 2
 	#ChargingSocket = 4
-	#SpecialOffer = 2
+	--#Booking = 1
 }
 
 run show for 10
