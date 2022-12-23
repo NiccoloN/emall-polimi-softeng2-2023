@@ -32,9 +32,7 @@ abstract sig Notification {
 sig Reminder extends Notification {
 }
 
-
 sig ChargingEnd extends Notification {
-
 }
 
 sig Suggestion extends Notification {
