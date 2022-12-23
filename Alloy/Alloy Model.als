@@ -182,7 +182,6 @@ fact noSharingSuggestion{
 		(e1.suggestion != e2.suggestion)
 }
 
-//------------- Distinctions constraints ------------ //
 fact oneChargeToOneChargingEnd{
 	all c: Charge | one ch: ChargingEnd|
 		c.chargingNotification = ch
@@ -194,13 +193,12 @@ fact noSharingChargingEnd {
 		(ch1.chargingNotification != ch2.chargingNotification)
 }
 
-//---------- Distinctions constraints --------- //
 fact everyPaymentMethodIsDifferent {
 	all e1, e2: EndUser | 
 		e1 != e2 implies e1.paymentMethod != e2.paymentMethod
 }
 
-//------------ CPMS constraints ------------- //
+//----------------- CPMS constraints --------------- //
 
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
@@ -239,15 +237,15 @@ fact noSharingSpecialOffers {
 		((ch1.listSpecialOffers) not in ch2.listSpecialOffers)
 }
 
+fact noWrongDateTimeSpecialOfffer{
+	all sp: SpecialOffer |
+		sp.startTime != sp.endTime
+}
+
 //------------------- Redundant instances --------------------
 fact noRedundantLocations {
 	all l: Location | one c: ChargingStation |
 		c.location = l
-}
-
-fact noRedundantDateTimeSpecialOfffer{
-	all sp: SpecialOffer |
-		sp.startTime != sp.endTime
 }
 
 fact noSharingDateTimeSpecialOfffer{
@@ -309,18 +307,20 @@ fact noBookingInSameTimespace{
 		implies (b1.startTime.i > b2.endTime.i or b1.endTime.i < b2.startTime.i)
 }
 
+//the only case in which a booking can overlap a charge is that it is done by same user
 fact noBookingInSameTimespaceAsCharge {
 	all b: Booking | all c: Charge | all e: EndUser |
 		(b.chargingSocket = c.chargingSocket and
 		!(b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i))
 		implies (b in e.bookings and c in e.charges)
-}//the only case in which a booking can overlap a charge is that it is done by same user
+}
 
+//user cannot do a charge and a booking in same timespace unless is the charge associated with that booking
 fact noOverlappingChargesOrBookingsOfUser{
 	all b: Booking | all c: Charge | all e: EndUser |
 		(b in e.bookings and c in e.charges and b.chargingSocket != c.chargingSocket) 
 		implies (b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i)
-}//user cannot do a charge and a booking in same timespace unless is the charge associated with that booking
+}
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Show------------------------------------------//
