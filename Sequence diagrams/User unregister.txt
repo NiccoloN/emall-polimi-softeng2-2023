@@ -1,9 +1,0 @@
-participant end-user
-participant eMSS
-
-
-end-user->eMSS:unregister()
-activate eMSS
-eMSS->eMSS:deleteAccount()
-eMSS-->end-user:show(response)
-deactivate eMSS

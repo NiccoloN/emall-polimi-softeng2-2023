@@ -1,8 +1,0 @@
-participant end-user
-participant eMSS
-
-
-end-user->eMSS:disconnectVehicle(vehicle)
-activate eMSS
-eMSS-->end-user:show(response)
-deactivate eMSS
