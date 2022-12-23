@@ -1,11 +1,7 @@
-//-------------------------------------------------------------------------------------//
-//------------------------------------Signatures------------------------------------//
-//-------------------------------------------------------------------------------------//
+//----------Signatures----------//
 
-//------------------------------------USERS----------------------------------------//
-abstract sig User {
-
-}
+//------------USERS-------------//
+abstract sig User {}
 
 sig EndUser extends User {
 	paymentMethod: one PaymentMethod,
@@ -21,16 +17,14 @@ sig CPO extends User {
 	listDSO: some DSO
 }
 
-//-------------------------------------eMSS-----------------------------------------//
-sig Vehicle {
-}
+//-------------eMSS-------------//
+sig Vehicle {}
 
 abstract sig Notification {
 	dateTime: one DateTime,
 }
 
-sig Reminder extends Notification {
-}
+sig Reminder extends Notification {}
 
 sig ChargingEnd extends Notification {
 	charge: one Charge
@@ -47,16 +41,14 @@ sig Booking {
 	reminder: one Reminder
 }
 
-sig PaymentMethod {
-
-}
+sig PaymentMethod {}
 
 sig Payment {
 	isPayed: one Boolean,
 	paymentMethod: one PaymentMethod
 }
 
-//-------------------------------------CPMS-----------------------------------------//
+//-------------CPMS-------------//
 sig ChargingStation {
 	location: one Location,
 	cost: one CostTable,
@@ -76,7 +68,7 @@ sig SpecialOffer {
 	prices: one CostTable
 }
 
-//-------------------------------------shared classes------------------------------//
+//--------shared classes--------//
 sig Charge {
 	startTime: one DateTime,
 	endTime: one DateTime,,
@@ -84,36 +76,34 @@ sig Charge {
 	chargingSocket: one ChargingSocket 
 }
 
-//-------------------------------------external classes---------------------------//
-sig Calendar{}
+//-------external classes-------//
+sig Calendar {}
 
-sig DSO{}
+sig DSO {}
 
-//------------------------------------- Defining new types------------------------------------//
+//------Defining new types------//
 abstract sig ChargingSocketType {}
-one sig SLOW extends ChargingSocketType{}
-one sig FAST extends ChargingSocketType{}
-one sig RAPID extends ChargingSocketType{}
+one sig SLOW extends ChargingSocketType {}
+one sig FAST extends ChargingSocketType {}
+one sig RAPID extends ChargingSocketType {}
 
 abstract sig Boolean {}
-one sig TRUE extends Boolean{}
-one sig FALSE extends Boolean{}
+one sig TRUE extends Boolean {}
+one sig FALSE extends Boolean {}
 
-sig DateTime{
+sig DateTime {
 	i: one Int
 }{i > 0}
 
 sig Location {}
 
-sig CostTable{}
+sig CostTable {}
 
 sig Float {}
 
-//-------------------------------------------------------------------------------------//
-//------------------------------------Facts------------------------------------------//
-//-------------------------------------------------------------------------------------//
+//------------Facts-------------//
 
-// -------------- User related facts ----------------------------
+//-------eMSS constraints-------//
 fact eachEndserHasOnePaymentMethod {
 	all e: EndUser | one p: PaymentMethod |
 		e.paymentMethod = p
@@ -129,12 +119,12 @@ fact eachVehicleOwnedByOneEndUser {
 		v in e.vehicles
 }
 
-fact eachReminderHasDateTime{
+fact eachReminderHasDateTime {
 	all r: Reminder | one dt: DateTime |
 		r.dateTime = dt
 }
 
-fact noSharingReminders{
+fact noSharingReminders {
 	all b1, b2: Booking |
 		b1 != b2 implies
 		b1.reminder != b2.reminder
@@ -170,19 +160,19 @@ fact oneUserForCalendar {
 		e.calendar = c
 }
 
-fact eachChargePayedByProperUser{
+fact eachChargePayedByProperUser {
 	all c: Charge | all e: EndUser |
 		c in e.charges implies
 		c.payment.paymentMethod in e.paymentMethod
 }
 
-fact noSharingSuggestion{
+fact noSharingSuggestion {
 	all e1, e2: EndUser |
 		e1 != e2 implies
 		(e1.suggestion != e2.suggestion)
 }
 
-fact oneChargeToOneChargingEnd{
+fact oneChargeToOneChargingEnd {
 	all c: ChargingEnd | one ch: Charge|
 		c.charge = ch
 }
@@ -193,7 +183,7 @@ fact noSharingCharge {
 		(ch1.charge != ch2.charge)
 }
 
-fact rightTimeChargingEnd{
+fact rightTimeChargingEnd {
 	all ce: ChargingEnd | all c: Charge | 
 		ce.charge = c implies ce.dateTime = c.endTime
 }
@@ -203,14 +193,13 @@ fact everyPaymentMethodIsDifferent {
 		e1 != e2 implies e1.paymentMethod != e2.paymentMethod
 }
 
-//----------------- CPMS constraints --------------- //
-
+//----------CPMS constraints----------//
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
 		s in c.chargingStations
 }
 
-fact eachStationConnectedToALegalDSO{
+fact eachStationConnectedToALegalDSO {
 	all s: ChargingStation | all c: CPO | all d: DSO |
 		(d = s.connectedDSO and s in c.chargingStations) 
 		implies (d in c.listDSO)
@@ -231,7 +220,7 @@ fact eachSocketHasType {
 		s.type = t
 }
 
-fact eachSpecialOfferBelongsToOneChargingStation{
+fact eachSpecialOfferBelongsToOneChargingStation {
 	all spo: SpecialOffer | one ch: ChargingStation |
 		spo in ch.listSpecialOffers
 }
@@ -242,30 +231,29 @@ fact noSharingSpecialOffers {
 		((ch1.listSpecialOffers) not in ch2.listSpecialOffers)
 }
 
-fact noWrongDateTimeSpecialOfffer{
+fact noWrongDateTimeSpecialOfffer {
 	all sp: SpecialOffer |
 		sp.startTime != sp.endTime
 }
 
-fact noSameCostTableChargingStations{
+fact noSameCostTableChargingStations {
 	all cs1, cs2: ChargingStation |
 		(cs1 != cs2 implies
 		cs1.cost != cs2.cost) 
 }
 
-fact noSameCostTableSpecialOffer{
+fact noSameCostTableSpecialOffer {
 	all sp1, sp2: SpecialOffer |
 		(sp1 != sp2 and !(sp1.startTime.i > sp2.endTime.i or sp1.endTime.i < sp2.startTime.i))
 		implies sp1.prices != sp2.prices
 }
 
-fact noSameCostTableBetween{
+fact noSameCostTableBetween {
 	all sp: SpecialOffer | all cs: ChargingStation |
 		sp.prices != cs.cost
 }
 
-//---------------- DateTime Consistence --------------------
-
+//-----DateTime Consistence-----//
 fact uniqueDateTime {
 	all d1, d2: DateTime | d1 != d2 implies d1.i != d2.i
 }
@@ -309,7 +297,7 @@ fact noOverlappingChargesOrBookingsOfUser{
 		implies (b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i)
 }
 
-//------------------- Redundant instances --------------------
+//------Redundant instances-----//
 fact noRedundantLocations {
 	all l: Location | one c: ChargingStation |
 		c.location = l
@@ -320,9 +308,7 @@ fact noRedundantDSO {
 		d in c.listDSO
 }
 
-//-------------------------------------------------------------------------------------//
-//------------------------------------Show------------------------------------------//
-//------------------------------------------------------------------------------------//
+//-------------Show-------------//
 
 pred show {
 	#CPO = 3
