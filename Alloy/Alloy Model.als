@@ -31,7 +31,7 @@ abstract sig Notification {
 sig Reminder extends Notification {
 }
 
-/*
+
 sig ChargingEnd extends Notification {
 	charge: one Charge
 }
@@ -39,11 +39,11 @@ sig ChargingEnd extends Notification {
 sig Suggestion extends Notification {
 	chargingStation: some ChargingStation
 }
-*/
+
 
 sig Booking {
-	start: one DateTime,
-	end: one DateTime,
+	startTime: one DateTime,
+	endTime: one DateTime,
 	chargingSocket: one ChargingSocket,
 	reminder: one Reminder
 }
@@ -79,11 +79,8 @@ sig SpecialOffer {
 
 //-------------------------------------shared classes------------------------------//
 sig Charge {
-	enduser: one EndUser,
 	startTime: one DateTime,
-	endTime: one DateTime,
-	cost: one Float,
-	timeToFinish: one DateTime,
+	endTime: one DateTime,,
 	payment: one Payment,
 	chargingSocket: one ChargingSocket
 }
@@ -104,8 +101,8 @@ one sig TRUE extends Boolean{}
 one sig FALSE extends Boolean{}
 
 sig DateTime{
-	
-}
+	i: one Int
+}{i > 0}
 
 sig Location {}
 
@@ -152,7 +149,7 @@ fact eachBookingOwnedByOneEndUser {
 
 fact eachChargeAssociatedToOneEndUser {
 	all c: Charge | one e: EndUser |
-		c in e.charges and c.enduser = e
+		c in e.charges
 }
 
 fact eachPaymentAssociatedToOneCharge {
@@ -173,6 +170,12 @@ fact eachPaymentAssociatedToOnePaymentMethod {
 fact oneUserForCalendar {
 	all c: Calendar | one e: EndUser |
 		e.calendar = c
+}
+
+fact eachChargePayedByProperUser{
+	all c: Charge | all e: EndUser |
+		c in e.charges implies
+		c.payment.paymentMethod in e.paymentMethod
 }
 
 //------------- Distinctions constraints ------------ //
@@ -256,21 +259,50 @@ fact noRedundantCostTableBetween{
 		sp.prices != cs.cost
 }
 
-fact noRedundantFloat{
-	all ch1, ch2: Charge |
-		ch1 != ch2 implies ch1.cost != ch2.cost
+//DateTime Consistence
+
+fact uniqueDateTime {
+	all d1, d2: DateTime | d1 != d2 implies d1.i != d2.i
 }
 
+fact specialOffersTimeConsistence {
+	all s: SpecialOffer | s.startTime.i < s.endTime.i
+}
+
+fact bookingsTimeConsistence {
+	all b: Booking | b.startTime.i < b.endTime.i
+}
+
+fact chargingsTimeConsistence {
+	all c: Charge | c.startTime.i < c.endTime.i 
+}
+
+fact noChargingInSameTimespace{
+	all c1,c2: Charge | 
+		(c1 != c2 and c1.chargingSocket = c2.chargingSocket)
+		implies (c1.startTime.i > c2.endTime.i or c1.endTime.i < c2.startTime.i)
+}
+
+fact noBookingInSameTimespace{
+	all b1,b2: Booking | 
+		(b1 != b2 and b1.chargingSocket = b2.chargingSocket)
+		implies (b1.startTime.i > b2.endTime.i or b1.endTime.i < b2.startTime.i)
+}
+
+fact noBookingInSameTimespaceAsCharge {
+	all b: Booking | all c: Charge | all e: EndUser |
+		(b.chargingSocket = c.chargingSocket and
+		!(b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i))
+		implies (b in e.bookings and c in e.charges)
+}//the only case in which a booking can overlap a charge is that it is done by same user
+
+fact noOverlappingChargesOrBookingsOfUser{
+	all b: Booking | all c: Charge | all e: EndUser |
+		(b in e.bookings and c in e.charges and b.chargingSocket != c.chargingSocket) 
+		implies (b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i)
+}//user cannot do a charge and a booking in same timespace unless is the charge associated with that booking
+
 //No left overs
-
-//-------------------------------------------------------------------------------------//
-//------------------------------------Assertions-----------------------------------//
-//-------------------------------------------------------------------------------------//
-
-//in slides is said that assertions are to verify something we want to rove
-//empty space because i have no idea on what we need to verify
-
-// Marcos: I dont think we need to put any assertions at all, fra, just test the general structure
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Show------------------------------------------//
@@ -284,6 +316,7 @@ pred show {
 	#ChargingSocket = 4
 	#Booking = 2
 	#Reminder = 2
+	#Charge = 2
 }
 
 run show for 10
