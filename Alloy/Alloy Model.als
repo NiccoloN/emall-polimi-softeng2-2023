@@ -12,7 +12,8 @@ sig EndUser extends User {
 	calendar: lone Calendar,
 	vehicles: set Vehicle, 
 	bookings: set Booking, 
-	charges: set Charge 
+	charges: set Charge,
+	suggestion: lone Suggestion
 }
 
 sig CPO extends User {
@@ -31,14 +32,14 @@ abstract sig Notification {
 sig Reminder extends Notification {
 }
 
-
 sig ChargingEnd extends Notification {
+	charge: one Charge
 }
-/*
+
 sig Suggestion extends Notification {
 	chargingStation: some ChargingStation
 }
-*/
+
 sig Booking {
 	startTime: one DateTime,
 	endTime: one DateTime,
@@ -80,8 +81,7 @@ sig Charge {
 	startTime: one DateTime,
 	endTime: one DateTime,,
 	payment: one Payment,
-	chargingSocket: one ChargingSocket,
-	chargingNotification: one ChargingEnd 
+	chargingSocket: one ChargingSocket 
 }
 
 //-------------------------------------external classes---------------------------//
@@ -113,8 +113,8 @@ sig Float {}
 //------------------------------------Facts------------------------------------------//
 //-------------------------------------------------------------------------------------//
 
-// User facts
-fact eachEndUserHasOnePaymentMethod {
+// -------------- User related facts ----------------------------
+fact eachEndserHasOnePaymentMethod {
 	all e: EndUser | one p: PaymentMethod |
 		e.paymentMethod = p
 }
@@ -176,25 +176,34 @@ fact eachChargePayedByProperUser{
 		c.payment.paymentMethod in e.paymentMethod
 }
 
-//------------- Distinctions constraints ------------ //
+fact noSharingSuggestion{
+	all e1, e2: EndUser |
+		e1 != e2 implies
+		(e1.suggestion != e2.suggestion)
+}
+
 fact oneChargeToOneChargingEnd{
-	all c: Charge | one ch: ChargingEnd|
-		c.chargingNotification = ch
+	all c: ChargingEnd | one ch: Charge|
+		c.charge = ch
 }
 
-fact noSharingChargingEng {
-	all ch1, ch2: Charge |
+fact noSharingCharge {
+	all ch1, ch2: ChargingEnd |
 		ch1 != ch2 implies
-		(ch1.chargingNotification != ch2.chargingNotification)
+		(ch1.charge != ch2.charge)
 }
 
-//---------- Distinctions constraints --------- //
+fact rightTimeChargingEnd{
+	all ce: ChargingEnd | all c: Charge | 
+		ce.charge = c implies ce.dateTime = c.endTime
+}
+
 fact everyPaymentMethodIsDifferent {
 	all e1, e2: EndUser | 
 		e1 != e2 implies e1.paymentMethod != e2.paymentMethod
 }
 
-//------------ CPMS constraints -------------
+//----------------- CPMS constraints --------------- //
 
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
@@ -233,52 +242,29 @@ fact noSharingSpecialOffers {
 		((ch1.listSpecialOffers) not in ch2.listSpecialOffers)
 }
 
-//---------- Redundant instances ------------------
-fact noRedundantLocations {
-	all l: Location | one c: ChargingStation |
-		c.location = l
-}
-
-/*fact noRedundantDSO {
-	all d: DSO | some c: CPO |
-		d in c.listDSO
-}*/
-
-fact noRedundantDateTimeSpecialOfffer{
+fact noWrongDateTimeSpecialOfffer{
 	all sp: SpecialOffer |
 		sp.startTime != sp.endTime
 }
 
-fact noSharingDateTimeSpecialOfffer{
-	all sp1, sp2: SpecialOffer |
-		sp1 != sp2 implies
-		(sp1.startTime != sp2.endTime and
-		sp1.startTime != sp2.startTime)
-}
-
-fact noRedundantDateTimeCharge{
-	all c: Charge |
-		c.startTime != c.endTime
-}
-
-fact noRedundantCostTableChargingStations{
+fact noSameCostTableChargingStations{
 	all cs1, cs2: ChargingStation |
 		(cs1 != cs2 implies
 		cs1.cost != cs2.cost) 
 }
 
-fact noRedundantCostTableSpecialOffer{
+fact noSameCostTableSpecialOffer{
 	all sp1, sp2: SpecialOffer |
-		(sp1 != sp2 implies
-		sp1.prices != sp2.prices)
+		(sp1 != sp2 and !(sp1.startTime.i > sp2.endTime.i or sp1.endTime.i < sp2.startTime.i))
+		implies sp1.prices != sp2.prices
 }
 
-fact noRedundantCostTableBetween{
+fact noSameCostTableBetween{
 	all sp: SpecialOffer | all cs: ChargingStation |
 		sp.prices != cs.cost
 }
 
-//DateTime Consistence
+//---------------- DateTime Consistence --------------------
 
 fact uniqueDateTime {
 	all d1, d2: DateTime | d1 != d2 implies d1.i != d2.i
@@ -308,27 +294,38 @@ fact noBookingInSameTimespace{
 		implies (b1.startTime.i > b2.endTime.i or b1.endTime.i < b2.startTime.i)
 }
 
+//the only case in which a booking can overlap a charge is that it is done by same user
 fact noBookingInSameTimespaceAsCharge {
 	all b: Booking | all c: Charge | all e: EndUser |
 		(b.chargingSocket = c.chargingSocket and
 		!(b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i))
 		implies (b in e.bookings and c in e.charges)
-}//the only case in which a booking can overlap a charge is that it is done by same user
+}
 
+//user cannot do a charge and a booking in same timespace unless is the charge associated with that booking
 fact noOverlappingChargesOrBookingsOfUser{
 	all b: Booking | all c: Charge | all e: EndUser |
 		(b in e.bookings and c in e.charges and b.chargingSocket != c.chargingSocket) 
 		implies (b.startTime.i > c.endTime.i or b.endTime.i < c.startTime.i)
-}//user cannot do a charge and a booking in same timespace unless is the charge associated with that booking
+}
 
-//No left overs
+//------------------- Redundant instances --------------------
+fact noRedundantLocations {
+	all l: Location | one c: ChargingStation |
+		c.location = l
+}
+
+fact noRedundantDSO {
+	all d: DSO | some c: CPO |
+		d in c.listDSO
+}
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Show------------------------------------------//
 //------------------------------------------------------------------------------------//
 
 pred show {
-	#CPO = 2
+	#CPO = 3
 	#ChargingStation = 3
 	#EndUser = 3
 	#DSO = 4
@@ -337,6 +334,7 @@ pred show {
 	#Reminder = 2
 	#Charge = 2
 	#ChargingEnd = 2
+	#Suggestion = 2
 }
 
 run show for 10
