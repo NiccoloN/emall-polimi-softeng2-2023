@@ -16,7 +16,8 @@ sig EndUser extends User {
 }
 
 sig CPO extends User {
-	chargingStations: set ChargingStation
+	chargingStations: some ChargingStation,
+	listDSO: some DSO
 }
 
 //-------------------------------------eMSS-----------------------------------------//
@@ -59,7 +60,7 @@ sig ChargingStation {
 	location: one Location,
 	cost: one CostTable,
 	chargingSockets: some ChargingSocket,
-	listDSO: some DSO, 
+	connectedDSO: one DSO, 
 	listSpecialOffers: some SpecialOffer
 }
 
@@ -200,6 +201,12 @@ fact eachStationIsOwnedByOneCPO {
 		s in c.chargingStations
 }
 
+fact eachStationConnectedToALegalDSO{
+	all s: ChargingStation | all c: CPO | all d: DSO |
+		(d = s.connectedDSO and s in c.chargingStations) 
+		implies (d in c.listDSO)
+}
+
 fact eachStationHasDifferentLocation {
 	all l : Location | one c : ChargingStation | 
 		c.location = l
@@ -231,6 +238,11 @@ fact noRedundantLocations {
 	all l: Location | one c: ChargingStation |
 		c.location = l
 }
+
+/*fact noRedundantDSO {
+	all d: DSO | some c: CPO |
+		d in c.listDSO
+}*/
 
 fact noRedundantDateTimeSpecialOfffer{
 	all sp: SpecialOffer |
@@ -319,7 +331,7 @@ pred show {
 	#CPO = 2
 	#ChargingStation = 3
 	#EndUser = 3
-	#DSO = 2
+	#DSO = 4
 	#ChargingSocket = 4
 	#Booking = 2
 	#Reminder = 2
