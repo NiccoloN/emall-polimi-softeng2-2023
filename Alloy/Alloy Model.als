@@ -33,13 +33,11 @@ sig Reminder extends Notification {
 
 sig ChargingEnd extends Notification {
 }
-
 /*
 sig Suggestion extends Notification {
 	chargingStation: some ChargingStation
 }
-
-
+*/
 sig Booking {
 	startTime: one DateTime,
 	endTime: one DateTime,
@@ -325,7 +323,7 @@ pred show {
 	#ChargingSocket = 4
 	#Booking = 2
 	#Reminder = 2
-	--#Charge = 2
+	#Charge = 2
 	#ChargingEnd = 2
 }
 
