@@ -9,9 +9,14 @@
 
 ---------------------------Needed Changes--------------------------------
 
-DateTime not consistent (try to change it to INT)
+[SOLVED] Booking not showing
 
-Booking not showing
+[SOLVED] Reminder -- Removed EndUser of Notifications
+	- Booking own reminder
+	- Took out all strings, as they were bugging
 
+Need to test other types of notifications: ChargingEnd
 
+DateTime repetitions
 
+Unconnected signatures created

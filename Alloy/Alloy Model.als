@@ -4,8 +4,8 @@
 
 //------------------------------------USERS----------------------------------------//
 abstract sig User {
-	--id: one Int
-}--{id > 0}
+
+}
 
 sig EndUser extends User {
 	paymentMethod: one PaymentMethod,
@@ -13,7 +13,7 @@ sig EndUser extends User {
 	vehicles: set Vehicle, 
 	bookings: set Booking, 
 	charges: set Charge 
-}--{id > 0}
+}
 
 sig CPO extends User {
 	chargingStations: set ChargingStation
@@ -21,19 +21,17 @@ sig CPO extends User {
 
 //-------------------------------------eMSS-----------------------------------------//
 sig Vehicle {
---	id: one Int
-}--{id > 0}
+
+}
 
 abstract sig Notification {
-	enduser: one EndUser,
 	dateTime: one DateTime,
-	description: one String
 }
 
 sig Reminder extends Notification {
-	booking: one Booking
 }
 
+/*
 sig ChargingEnd extends Notification {
 	charge: one Charge
 }
@@ -41,11 +39,13 @@ sig ChargingEnd extends Notification {
 sig Suggestion extends Notification {
 	chargingStation: some ChargingStation
 }
+*/
 
 sig Booking {
 	start: one DateTime,
 	end: one DateTime,
-	chargingSocket: one ChargingSocket
+	chargingSocket: one ChargingSocket,
+	reminder: one Reminder
 }
 
 sig PaymentMethod {
@@ -59,16 +59,14 @@ sig Payment {
 
 //-------------------------------------CPMS-----------------------------------------//
 sig ChargingStation {
-	--id: one Int,
 	location: one Location,
 	cost: one CostTable,
 	chargingSockets: some ChargingSocket,
-	listDSO: some DSO, 	//Doesnt make sense to have DSOs on CPO, because he can have multiples CSs
+	listDSO: some DSO, 
 	listSpecialOffers: some SpecialOffer
-}--{id > 0}
+}
 
 sig ChargingSocket {
-	--id: one Int,
 	isOccupied: one Boolean,
 	type: one ChargingSocketType
 }
@@ -130,38 +128,27 @@ fact eachPaymentMethodIsOwnedByOneEndUser {
 		e.paymentMethod = p 
 }
 
---fact eachUserHasUniqueId {
---	no disj u1, u2 : User | u1.id = u2.id
---}
-
 fact eachVehicleOwnedByOneEndUser {
 	all v: Vehicle | one e: EndUser |
 		v in e.vehicles
 }
 
---fact eachVehicleHasUniqueId {
---	no disj v1, v2 : Vehicle | v1.id = v2.id
---}
+fact eachReminderHasDateTime{
+	all r: Reminder | one dt: DateTime |
+		r.dateTime = dt
+}
+
+fact noSharingReminders{
+	all b1, b2: Booking |
+		b1 != b2 implies
+		b1.reminder != b2.reminder
+}
+
 
 fact eachBookingOwnedByOneEndUser {
 	all b: Booking | one e: EndUser |
 		b in e.bookings
 }
-
-/*fact eachNotificationOwnedByOneEndUser {
-	all n: Notification | one e: EndUser |
-		n.enduser = e
-}*/
-	
-/*fact eachReminderAssociatedToOneBooking {
-	all r: Reminder | one b: Booking |
-		r.booking = b
-}
-
-fact eachBookingAssociatedToOneReminder {
-	all b: Booking | one r: Reminder |
-		r.booking = b
-}*/
 
 fact eachChargeAssociatedToOneEndUser {
 	all c: Charge | one e: EndUser |
@@ -197,15 +184,6 @@ fact everyPaymentMethodIsDifferent {
 	
 
 //------------ CPMS constraints -------------
-
---fact eachChargingStationHasUniqueId {
---	no disj c1, c2 : ChargingStation | c1.id = c2.id
---}
-
---fact eachChargingSocketHasUniqueId {
---	no disj c1, c2 : ChargingSocket | 
---		c1.id = c2.id
---}
 
 fact eachStationIsOwnedByOneCPO {
 	all s: ChargingStation | one c: CPO |
@@ -278,27 +256,12 @@ fact noRedundantCostTableBetween{
 		sp.prices != cs.cost
 }
 
-//Integer is a internal type, i dont think we need to prevent this
-fact noRedundantInteger{}
 fact noRedundantFloat{
 	all ch1, ch2: Charge |
 		ch1 != ch2 implies ch1.cost != ch2.cost
 }
 
 //No left overs
-
-/*fact noDateTimeLeft{
-	all dt: DateTime | one n: Notification | one b: Booking | one so: SpecialOffer | one c: Charge |
-		(dt in n.dateTime) or
-		(dt in b.start) or
-		(dt in b.end) or
-		(dt in so.startTime) or
-		(dt in so.endTime) or
-		(dt in c.startTime) or
-		(dt in c.endTime)
-}*/
-
-
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Assertions-----------------------------------//
@@ -311,7 +274,7 @@ fact noRedundantFloat{
 
 //-------------------------------------------------------------------------------------//
 //------------------------------------Show------------------------------------------//
-//-------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------//
 
 pred show {
 	#CPO = 2
@@ -319,7 +282,8 @@ pred show {
 	#EndUser = 3
 	#DSO = 2
 	#ChargingSocket = 4
-	--#Booking = 1
+	#Booking = 2
+	#Reminder = 2
 }
 
 run show for 10
