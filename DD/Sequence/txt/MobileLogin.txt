@@ -1,0 +1,46 @@
+participant "Mobile App" as app
+
+participant "eMSS Gateway" as gt
+
+participant "Authentication Manager" as manager
+participant "Authentication Manager DB" as db
+
+participant "Notification System" as nt
+
+activate app
+app->gt:authenticate(email, password)
+activate gt
+gt->>manager:authenticate(userIP, email, password)
+deactivate gt
+activate manager
+manager->db: verifyUser
+activate db
+db-->manager:result
+deactivate db
+
+opt User existent
+manager->db:verifyKnownDevice
+activate db
+db-->manager: result
+deactivate db
+
+opt device not verified
+manager->>nt:sendNotification(deviceVerificationEmail)
+activate nt
+nt->nt:sendEmail
+deactivate nt
+app<--manager:requestVerification
+app->gt:verifyDevice(verificationCode)
+activate gt
+gt->>manager:verifyDevice(user, verificationCode)
+deactivate gt
+manager->db:insertDevice
+activate db
+db-->manager: result
+deactivate db
+end
+
+end
+
+manager-->app: result
+deactivate manager

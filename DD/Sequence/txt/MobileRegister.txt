@@ -1,0 +1,46 @@
+participant "Mobile App" as app
+participant "eMSS Gateway" as gt
+participant "User Data Manager" as manager
+participant "User Data Manager DB" as db
+participant "Payments Manager" as pay
+participant "Payments API" as paydb
+
+activate app
+
+app->>gt:register(registrationData)
+activate gt
+gt->>manager:register(registrationData)
+deactivate gt
+activate manager
+manager->db: checkNotExist
+activate db
+db-->manager: result
+deactivate db
+manager->manager: checkDataIntegrity
+manager->>pay: verify(paymentMethod)
+activate pay
+pay->>paydb: verify(paymentMethod)
+activate paydb
+paydb-->>pay: result
+deactivate paydb
+
+#opt Payment is OK
+#pay->pdb:insert(paymentMethod)
+#activate pdb
+#pay<<-pdb:result
+#deactivate pdb
+#end
+
+pay-->>manager: result
+deactivate pay
+
+opt Data is OK and Payment is OK
+manager->db: insert
+activate db
+db-->manager: result
+deactivate db
+end
+
+manager-->>app: result
+deactivate manager
+

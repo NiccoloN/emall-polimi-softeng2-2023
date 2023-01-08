@@ -1,0 +1,59 @@
+participant "Mobile App" as app
+
+participant "Notifications System" as nt
+
+participant "Charge Manager" as ch
+participant "Charge Manager DB" as cdb
+
+participant "Payments Manager" as pm
+participant "Payments Manager DB" as pdb
+participant "Payment API" as papi
+
+participant "User Data Manager" as ud
+participant "User Data Manager DB" as udb
+
+participant "Stations Manager" as station
+participant "Stations Manager DB" as sdb
+participant "Station API" as sttapi
+
+activate app
+activate sttapi
+station<<-sttapi:chargeEnded(stationID, socketID, details)
+deactivate sttapi
+activate station
+station->sdb:deleteCharge
+activate sdb
+station<--sdb:result
+deactivate sdb
+ch<<-station:chargeEnded(chargeID, details)
+deactivate station
+activate ch
+nt<<-ch:sendNotification(user, chargingEnd)
+activate nt
+app<<-nt:notify(chargingEnd)
+deactivate nt
+ch->cdb:updateCharge
+activate cdb
+ch<--cdb:result
+deactivate cdb
+ch->>pm:pay(user, price)
+activate pm
+pm->>ud:getPaymentMethod(user)
+activate ud
+ud->udb:getPaymentMethod
+activate udb
+ud<--udb:paymentMethod
+deactivate udb
+pm<<--ud:paymentMethod
+deactivate ud
+pm->>papi:pay(paymentMethod, price)
+activate papi
+pm<<--papi:result
+deactivate papi
+pm->pdb:insertPayment
+activate pdb
+pm<--pdb:result
+deactivate pdb
+ch<<--pm:result
+deactivate pm
+deactivate ch

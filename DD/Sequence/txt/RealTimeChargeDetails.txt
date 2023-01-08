@@ -1,0 +1,34 @@
+participant "Mobile App" as app
+
+participant "eMSS Gateway" as gt
+
+participant "Stations Manager" as station
+participant "Stations Manager DB" as sdb
+participant "Station API" as sttapi
+
+activate app
+activate sttapi
+note over sttapi: Charging
+app->>gt:getRealTimeChargeDetails(chargeID)
+activate gt
+gt->>station:sendRealTimeChargeDetails(user, chargeID)
+deactivate gt
+activate station
+station->>sttapi:sendRealTimeChargeDetails(stationID, socketID)
+activate sttapi
+deactivate station
+loop
+station<<--sttapi:progress
+activate station
+app<<--station:progress
+deactivate station
+end
+
+app->>gt:stopRealTimeChargeDetails(chargeID)
+activate gt
+gt->>station:stopRealTimeChargeDetails(user, chargeID)
+deactivate gt
+activate station
+station->>sttapi:stopRealTimeChargeDetails(stationID, socketID)
+deactivate station
+deactivate sttapi

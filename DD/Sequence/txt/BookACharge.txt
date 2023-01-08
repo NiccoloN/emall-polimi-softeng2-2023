@@ -1,0 +1,85 @@
+participant "Mobile App" as app
+participant "eMSS Gateway" as gt
+
+participant "Booking System" as book
+participant "Booking System DB" as db
+
+participant "Notification System" as nt
+participant "Notification System DB" as ndb
+
+participant "Stations Manager" as station
+participant "Stations Manager DB" as sdb
+participant "Station API" as sttapi
+
+activate app
+
+app->>gt:getStationsInRange(position, range)
+activate gt
+gt->>station:sendStationsInRange(user, position, range)
+activate station
+deactivate gt
+station->sdb:getStationsInRange
+activate sdb
+station<--sdb:stations
+deactivate sdb
+station-->>app:stations
+deactivate station
+
+
+app->>gt:getStationDetails(stationID)
+activate gt
+gt->>station:sendStationDetails(StationID)
+deactivate gt
+activate station
+station->>sttapi:getStationDetails(stationID)
+activate sttapi
+station->sdb:getStationDetails(StationID)
+activate sdb
+station<--sdb:staticDetails
+deactivate sdb
+sttapi-->>station:dynamicDetails
+deactivate sttapi
+station-->>app:details
+deactivate station
+
+
+app->>gt:getAvailabilities(stationID, date)
+activate gt
+gt->>book:sendAvailabilities(user, stationID, date)
+deactivate gt
+activate book
+book->>station:getExternalDetails(stationID)
+activate station
+station->sdb:getSockets
+activate sdb
+book->db:getBookingsInDate
+activate db
+station<--sdb:sockets
+deactivate sdb
+db-->book:bookings
+deactivate db
+book<<--station:externalDetails
+deactivate station
+book->book:calculateAvailabilities
+book-->>app:availabilities
+deactivate book
+
+
+app->>gt:book(availability)
+activate gt
+gt->>book:book(user, availability)
+deactivate gt
+activate book
+book->>nt:scheduleNotification(notification, datetime)
+activate nt
+nt->ndb:scheduleNotification
+activate ndb
+book->db:insertBooking
+activate db
+nt<--ndb:result
+deactivate nt
+deactivate ndb
+db-->book:result
+deactivate db
+book-->>app:result
+deactivate book

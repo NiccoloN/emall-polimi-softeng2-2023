@@ -1,0 +1,12 @@
+participant "Web App" as app
+participant "CPMS Gateway" as gt
+participant "DSO info Manager" as dsoM
+participant "DSO API" as dso
+autoactivation 
+
+app->>gt:getDSOdetails(DSO_IDs)
+gt->>dsoM:sendDSOdetails(user, DSO_IDs)
+deactivate gt
+dsoM->>dso:requestDetails
+dso-->>dsoM: details
+dsoM-->>app: details

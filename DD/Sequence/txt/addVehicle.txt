@@ -1,0 +1,26 @@
+participant "Mobile App" as app
+participant "eMSS Gateway" as gt
+participant "User Data Manager" as manager
+participant "User Data Manager DB" as db
+
+activate app
+
+app->>gt:addVehicle(vehicle)
+activate gt
+
+gt->>manager:addVehicle(user, vehicle)
+deactivate gt
+activate manager
+
+manager->db: checkNotConnected
+db-->manager:response
+
+opt vehicle not registered
+manager->db:insert(vehicle)
+activate db
+db-->manager:result
+deactivate db
+end
+
+manager-->>app:result
+deactivate manager

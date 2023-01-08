@@ -1,0 +1,49 @@
+participant "Mobile App" as app
+
+participant "eMSS Gateway" as gt
+
+participant "Charge Manager" as ch
+participant "Charge Manager DB" as cdb
+
+participant "Booking System" as book
+participant "Booking System DB" as bdb
+
+participant "Stations Manager" as station
+participant "Stations Manager DB" as sdb
+participant "Station API" as sttapi
+
+
+activate app
+
+app->>gt:startCharge(stationID, socketID)
+activate gt
+gt->>ch:startCharge(user, stationID, socketID)
+deactivate gt
+activate ch
+ch->>book:checkValid(user, stationID, socketID)
+activate book
+book->bdb:checkValid
+activate bdb
+book<--bdb:result
+deactivate bdb
+ch<<--book:result
+deactivate book
+opt Valid Socket
+ch->>station:startCharge(chargeID, stationID, socketID)
+activate station
+station->>sttapi:startCharge(stationID, socketID)
+activate sttapi
+station<<--sttapi:charge
+station->sdb:insertCharge
+activate sdb
+station<--sdb:result
+deactivate sdb
+ch<<--station:charge
+deactivate station
+ch->cdb:insertCharge
+activate cdb
+ch<--cdb:result
+deactivate cdb
+end
+app<<--ch:result
+deactivate ch
