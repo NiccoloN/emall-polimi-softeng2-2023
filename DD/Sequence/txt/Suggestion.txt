@@ -1,0 +1,63 @@
+participant "Mobile App" as app
+
+participant "Notifications System" as nt
+
+participant "User Data Manager" as ud
+participant "User Data Manager DB" as udb
+
+participant "Calendar API" as cd
+
+participant "Stations Manager" as station
+participant "Stations Manager DB" as stdb
+
+participant "Suggestions System" as sg
+
+activate app
+activate sg
+ud<<-sg:getVehicles(user)
+activate ud
+ud->udb:getVehicles
+activate udb
+ud<--udb:vehicles
+deactivate udb
+ud-->>sg:vehicles
+deactivate ud
+sg->sg:checkVehiclesBattery
+opt Battery Low
+ud<<-sg:getUserPosition(user)
+activate ud
+ud->udb:getPosition
+activate udb
+ud<--udb:position
+deactivate udb
+ud-->>sg:userPosition
+deactivate ud
+ud<<-sg:getCalendar(user)
+activate ud
+ud->udb:getCalendar
+activate udb
+ud<--udb:calendar
+deactivate udb
+ud-->>sg:calendar
+deactivate ud
+opt User has Calendar
+cd<<-sg:getCalendarData(calendar)
+activate cd
+cd-->>sg:calendarData
+deactivate cd
+end
+station<<-sg:getStationsInRange(userPosition, range)
+activate station
+station->stdb:getStationsInRange
+activate stdb
+station<--stdb:stations
+deactivate stdb
+station-->>sg:stations
+deactivate station
+sg->sg:selectBestOption
+nt<<-sg:sendNotification(suggestionNotification)
+deactivate sg
+activate nt
+app<<-nt:suggestionNotification
+deactivate nt
+end

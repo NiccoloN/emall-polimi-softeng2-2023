@@ -8,7 +8,7 @@ participant "Authentication Manager DB" as db
 participant "Notification System" as nt
 
 activate app
-app->gt:authenticate(email, password)
+app->>gt:authenticate(email, password)
 activate gt
 gt->>manager:authenticate(userIP, email, password)
 deactivate gt
@@ -29,8 +29,8 @@ manager->>nt:sendNotification(deviceVerificationEmail)
 activate nt
 nt->nt:sendEmail
 deactivate nt
-app<--manager:requestVerification
-app->gt:verifyDevice(verificationCode)
+app<<-manager:requestVerification
+app->>gt:verifyDevice(verificationCode)
 activate gt
 gt->>manager:verifyDevice(user, verificationCode)
 deactivate gt
@@ -42,5 +42,5 @@ end
 
 end
 
-manager-->app: result
+manager-->>app: result
 deactivate manager

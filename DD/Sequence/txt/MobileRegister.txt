@@ -12,11 +12,15 @@ activate gt
 gt->>manager:register(registrationData)
 deactivate gt
 activate manager
-manager->db: checkNotExist
+manager->manager: checkDataIntegrity
+
+opt Data OK
+manager->db: checkNotExists
 activate db
 db-->manager: result
 deactivate db
-manager->manager: checkDataIntegrity
+
+opt User not Exists
 manager->>pay: verify(paymentMethod)
 activate pay
 pay->>paydb: verify(paymentMethod)
@@ -24,23 +28,17 @@ activate paydb
 paydb-->>pay: result
 deactivate paydb
 
-#opt Payment is OK
-#pay->pdb:insert(paymentMethod)
-#activate pdb
-#pay<<-pdb:result
-#deactivate pdb
-#end
-
 pay-->>manager: result
 deactivate pay
 
-opt Data is OK and Payment is OK
+opt Payment is OK
 manager->db: insert
 activate db
 db-->manager: result
 deactivate db
 end
-
+end
+end 
 manager-->>app: result
 deactivate manager
 

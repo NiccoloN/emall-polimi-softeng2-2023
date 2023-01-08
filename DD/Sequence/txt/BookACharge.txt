@@ -28,12 +28,12 @@ deactivate station
 
 app->>gt:getStationDetails(stationID)
 activate gt
-gt->>station:sendStationDetails(StationID)
+gt->>station:sendExternalDetails(StationID)
 deactivate gt
 activate station
 station->>sttapi:getStationDetails(stationID)
 activate sttapi
-station->sdb:getStationDetails(StationID)
+station->sdb:getStationDetails
 activate sdb
 station<--sdb:staticDetails
 deactivate sdb
@@ -72,7 +72,7 @@ deactivate gt
 activate book
 book->>nt:scheduleNotification(notification, datetime)
 activate nt
-nt->ndb:scheduleNotification
+nt->ndb:insertNotification
 activate ndb
 book->db:insertBooking
 activate db

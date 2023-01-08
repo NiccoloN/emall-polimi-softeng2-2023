@@ -21,13 +21,13 @@ activate sttapi
 station<<-sttapi:chargeEnded(stationID, socketID, details)
 deactivate sttapi
 activate station
+ch<<-station:chargeEnded(chargeID, details)
+activate ch
 station->sdb:deleteCharge
 activate sdb
 station<--sdb:result
 deactivate sdb
-ch<<-station:chargeEnded(chargeID, details)
 deactivate station
-activate ch
 nt<<-ch:sendNotification(user, chargingEnd)
 activate nt
 app<<-nt:notify(chargingEnd)
@@ -56,4 +56,8 @@ pm<--pdb:result
 deactivate pdb
 ch<<--pm:result
 deactivate pm
+ch->cdb:updateCharge
+activate cdb
+ch<--cdb:result
+deactivate cdb
 deactivate ch

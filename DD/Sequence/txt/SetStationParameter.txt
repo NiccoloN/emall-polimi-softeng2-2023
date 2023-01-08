@@ -18,14 +18,14 @@ manager-->>app:stations
 deactivate manager
 
 
-app->>gt:getStationDetails(stationID)
+app->>gt:getStationDetails(stationIDs)
 activate gt
-gt->>manager:sendStationDetails(StationID)
+gt->>manager:sendAllDetails(user, stationIDs)
 deactivate gt
 activate manager
-manager->>station:getStationDetails(stationID)
+manager->>station:getStationDetails(stationIDs)
 activate station
-manager->db:getStationDetails(StationID)
+manager->db:getStationDetails(stationIDs)
 activate db
 manager<--db:staticDetails
 deactivate db
@@ -40,9 +40,9 @@ activate gt
 gt->>manager:setPrice(user, sationIDs, socketType, price)
 activate manager
 deactivate gt
-manager->>station: setPrice(information)
+manager->>station:setPrice(price)
 activate station
-manager->db:updatePrices
+manager->db:updatePrice
 activate db
 db-->manager: result
 deactivate db
@@ -56,13 +56,8 @@ activate gt
 gt->>manager:chargeBatteries(user, stationIDs)
 deactivate gt
 activate manager
-manager->>station: chargeBatteries(stationIDs)
+manager->>station:chargeBatteries
 activate station
-manager->db:setBatteriesCharges
-activate db
-db-->manager: result
-deactivate db
 station-->>manager: result
-deactivate station
 manager-->>app:result
 deactivate manager
